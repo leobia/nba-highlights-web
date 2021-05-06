@@ -1,5 +1,4 @@
 import axios from 'axios';
-import MockVideos from '../mockVideos';
 
 function clearApiGamesResponse(response) {
   return response.events.map((e) => {
