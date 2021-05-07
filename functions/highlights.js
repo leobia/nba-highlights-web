@@ -5,9 +5,10 @@ const API_ENDPOINT = process.env.YOUTUBE_API_ENDPOINT + API_KEY;
 
 const axios = require('axios').default;
 
-exports.handler = async () => {
+exports.handler = async (event) => {
     try {
-        const res = await axios.get(API_ENDPOINT);
+        const url = API_ENDPOINT.replace('@number@', event.queryStringParameters.number);
+        const res = await axios.get(url);
 
         return {
             headers: { 'Content-Type': 'application/json' },

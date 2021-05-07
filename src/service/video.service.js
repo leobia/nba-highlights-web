@@ -26,18 +26,12 @@ const VideoService = {
         }));
     },
 
-    async getNbaGames() {
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const dateString = yesterday.toISOString().slice(0, 10).replace(/-/g, '');
+    async getNbaGames(dateString) {
         const response = await axios.get(`/api/games?date=${dateString}`);
         return response.data;
     },
 
-    async orderVideos(videos) {
-        const responseGamesApi = await this.getNbaGames();
-        let nbaGames = this.clearApiGamesResponse(responseGamesApi);
+    async orderVideos(videos, dateString, nbaGames) {
         nbaGames.forEach((g) => {
             const wins = g.teams[0].wins + g.teams[1].wins;
             const diffScore = Math.abs(g.teams[0].score - g.teams[1].score);
@@ -62,7 +56,7 @@ const VideoService = {
 
     clearApiHighlightsResponse(apiResponse) {
         return apiResponse.map((v) => ({
-            id: v.id,
+            id: v.snippet.resourceId.videoId,
             publishedAt: v.publishedAt,
             title: v.snippet.title,
             description: v.snippet.description,
@@ -71,10 +65,13 @@ const VideoService = {
         }));
     },
 
-    async getVideos() {
-        const response = await axios.get('/api/highlights');
+    async getVideos(date) {
+        const dateString = date.toISOString().slice(0, 10).replace(/-/g, '');
+        const responseGamesApi = await this.getNbaGames(dateString);
+        let nbaGames = this.clearApiGamesResponse(responseGamesApi);
+        const response = await axios.get('/api/highlights?number=' + nbaGames.length);
         const videos = this.clearApiHighlightsResponse(response.data.items);
-        return this.orderVideos(videos);
+        return this.orderVideos(videos, dateString, nbaGames);
     }
 };
 
