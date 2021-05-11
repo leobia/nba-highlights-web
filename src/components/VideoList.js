@@ -20,7 +20,7 @@ function VideoList() {
     const items = state.map((highlight) => (
         <div style={{ width: 340, margin: 'auto', padding: '20px' }} key={highlight?.id}>
             <Card shadow="sm">
-                <Image src={highlight?.thumbnails.url} height={160} alt={highlight?.title} />
+                <Image src={highlight?.thumbnails?.url} height={160} alt={highlight?.title} />
                 <div
                     style={{
                         display: 'flex',

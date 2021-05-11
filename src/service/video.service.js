@@ -55,14 +55,25 @@ const VideoService = {
     },
 
     clearApiHighlightsResponse(apiResponse) {
-        return apiResponse.map((v) => ({
-            id: v.snippet.resourceId.videoId,
-            publishedAt: v.publishedAt,
-            title: v.snippet.title,
-            description: v.snippet.description,
-            thumbnails: v.snippet.thumbnails.standard,
-            videoId: v.snippet.resourceId.videoId
-        }));
+        return apiResponse.map((v) => {
+            let thumbnails = null;
+            if (v.snippet.thumbnails != null && Object.keys(v.snippet.thumbnails).length > 0) {
+                const keys = Object.keys(v.snippet.thumbnails);
+                const lastKey = keys[keys.length - 1];
+                thumbnails = v.snippet.thumbnails.standard
+                    ? v.snippet.thumbnails.standard
+                    : v.snippet.thumbnails[lastKey];
+            }
+
+            return {
+                id: v.snippet.resourceId.videoId,
+                publishedAt: v.publishedAt,
+                title: v.snippet.title,
+                description: v.snippet.description,
+                thumbnails: thumbnails,
+                videoId: v.snippet.resourceId.videoId
+            };
+        });
     },
 
     async getVideos(date) {
@@ -71,7 +82,9 @@ const VideoService = {
         let nbaGames = this.clearApiGamesResponse(responseGamesApi);
         const response = await axios.get('/api/highlights?number=' + nbaGames.length);
         const videos = this.clearApiHighlightsResponse(response.data.items);
-        return this.orderVideos(videos, dateString, nbaGames);
+        let videosOrdered = await this.orderVideos(videos, dateString, nbaGames);
+        console.warn(videosOrdered);
+        return videosOrdered;
     }
 };
 
